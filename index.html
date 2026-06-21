@@ -2,109 +2,71 @@
 <html lang="cs">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Tipovačka MS 2026</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://unpkg.com/petite-vue@0.4.1/dist/petite-vue.iife.js"></script>
-<style>
-body{background:linear-gradient(135deg,#2a1515,#1a0f0f);font-family:system-ui}
-.card{background:rgba(0,0,0,.35);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.1)}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>body{font-family:Inter,system-ui}::-webkit-scrollbar{width:8px}::-webkit-scrollbar-thumb{background:#334155;border-radius:8px}</style>
 </head>
-<body class="text-white min-h-screen p-4" v-scope @vue:mounted="init()">
-<div class="max-w-5xl mx-auto">
-  <div class="flex items-center gap-3 mb-4">
-    <span class="text-3xl">🏆</span>
-    <div>
-      <h1 class="text-3xl font-bold">Tipovačka MS 2026</h1>
-      <p class="text-white/70">Žebříček a statistiky naší tipovačky</p>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-    <div class="card rounded-2xl p-4"><div class="text-xs text-white/60">VEDOUCÍ</div><div class="font-bold text-lg">{{ leader.name }} — {{ leader.points }} b.</div></div>
-    <div class="card rounded-2xl p-4"><div class="text-xs text-white/60">ÚSPĚŠNOST VEDOUCÍHO</div><div class="font-bold text-lg">{{ leaderPct }}%</div></div>
-    <div class="card rounded-2xl p-4"><div class="text-xs text-white/60">ODEHRÁNO</div><div class="font-bold text-lg">{{ played }}/{{ matches.length }}</div></div>
-    <div class="card rounded-2xl p-4"><div class="text-xs text-white/60">NÁSKOK V ČELE</div><div class="font-bold text-lg">+{{ lead }} b.</div></div>
-  </div>
-
-  <div class="flex gap-2 mb-4">
-    <button @click="tab='zeb'" :class="tab==='zeb'?'bg-blue-600':'bg-white/10'" class="px-4 py-2 rounded-xl">Žebříček</button>
-    <button @click="tab='zap'" :class="tab==='zap'?'bg-blue-600':'bg-white/10'" class="px-4 py-2 rounded-xl">Zápasy</button>
-    <button @click="tab='tipy'" :class="tab==='tipy'?'bg-blue-600':'bg-white/10'" class="px-4 py-2 rounded-xl">Všechny tipy</button>
-  </div>
-
-  <div v-if="tab==='zeb'" class="card rounded-2xl p-4">
-    <div v-for="(p,i) in playersSorted" :key="p.id" class="flex items-center justify-between py-3 border-b border-white/10 last:border-0">
-      <div class="flex items-center gap-3"><span class="w-6">{{ i+1 }}</span><span class="font-semibold">{{ p.name }}</span><span class="text-white/60 text-sm">🇨🇿 {{ p.team }}</span></div>
-      <div class="text-right"><div class="font-bold">{{ p.points }} b.</div><div class="text-xs text-white/60">{{ p.correct }}/{{ played }} · {{ Math.round((p.correct/Math.max(1,played))*100) }}%</div></div>
-    </div>
-    <button @click="addPlayer()" class="mt-4 text-sm text-white/70 hover:text-white">+ Přidat hráče</button>
-  </div>
-
-  <div v-if="tab==='zap'" class="space-y-3">
-    <div v-for="m in matches" :key="m.id" class="card rounded-2xl p-4">
-      <div class="flex justify-between mb-2"><span class="text-sm text-white/70">{{ m.date }} · {{ m.venue }}</span><span class="text-xs px-2 py-1 rounded bg-white/10">{{ m.status }}</span></div>
-      <div class="font-semibold text-lg mb-3">{{ m.home }} vs {{ m.away }}</div>
-      <div class="grid md:grid-cols-4 gap-2">
-        <div v-for="p in players" class="bg-black/20 rounded p-2">
-          <div class="text-xs text-white/60 mb-1">{{ p.name }}</div>
-          <select v-model="tips[m.id][p.id]" @change="save()" class="w-full bg-black/40 rounded px-2 py-1">
-            <option value="">—</option><option>1</option><option>X</option><option>2</option>
-          </select>
-        </div>
-        <div class="bg-blue-900/30 rounded p-2">
-          <div class="text-xs text-white/60 mb-1">Výsledek</div>
-          <select v-model="m.result" @change="calc()" class="w-full bg-black/40 rounded px-2 py-1">
-            <option value="">—</option><option>1</option><option>X</option><option>2</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div v-if="tab==='tipy'" class="card rounded-2xl p-4 overflow-x-auto">
-    <table class="w-full text-sm"><thead><tr class="text-white/60"><th class="text-left p-2">Zápas</th><th v-for="p in players" class="p-2">{{ p.name }}</th><th class="p-2">Výsl.</th></tr></thead>
-    <tbody><tr v-for="m in matches" class="border-t border-white/10"><td class="p-2">{{ m.home }}–{{ m.away }}</td><td v-for="p in players" class="p-2 text-center">{{ tips[m.id][p.id]||'—' }}</td><td class="p-2 text-center font-bold">{{ m.result||'—' }}</td></tr></tbody></table>
-  </div>
-
-  <p class="text-xs text-white/50 mt-6">Body: 1 b. za správný tip výsledku (1/X/2). Přesný výsledek se nehodnotí navíc.</p>
-</div>
-
+<body class="bg-[#0f172a] text-slate-100 min-h-screen">
+<header class="max-w-3xl mx-auto px-4 pt-10 pb-2">
+  <div class="flex items-center gap-3"><div class="text-3xl">🏆</div><div><h1 class="text-[28px] font-bold">Tipovačka MS 2026</h1><p class="text-slate-400 text-[14px]">Žebříček a statistiky naší tipovačky</p></div></div>
+</header>
+<section class="max-w-3xl mx-auto px-4"><div class="bg-[#1e293b] rounded-2xl px-4 py-3 flex justify-between"><div class="text-[13px] text-slate-300">Načteno: <span id="loadedTime">--:--</span> · odehráno <span><span id="playedInfo">4</span>/<span id="totalInfo">32</span></span></div><button id="btnRefresh" class="text-xs px-3 py-1.5 rounded-lg bg-slate-700">obnovit</button></div></section>
+<section class="max-w-3xl mx-auto px-4 mt-4"><div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+  <div class="bg-[#1e293b] rounded-2xl p-4"><div class="text-[11px] uppercase text-slate-400">Vedoucí</div><div id="statLeader" class="mt-1.5 text-[18px] font-semibold">Ajakulca — 0 b.</div></div>
+  <div class="bg-[#1e293b] rounded-2xl p-4"><div class="text-[11px] uppercase text-slate-400">Úspěšnost</div><div id="statSuccess" class="mt-1.5 text-[18px] font-semibold">0%</div></div>
+  <div class="bg-[#1e293b] rounded-2xl p-4"><div class="text-[11px] uppercase text-slate-400">Odehráno</div><div id="statPlayed" class="mt-1.5 text-[18px] font-semibold">4/32</div></div>
+  <div class="bg-[#1e293b] rounded-2xl p-4"><div class="text-[11px] uppercase text-slate-400">Náskok</div><div id="statLead" class="mt-1.5 text-[18px] font-semibold">+0 b.</div></div>
+</div></section>
+<nav class="max-w-3xl mx-auto px-4 mt-6"><div class="inline-flex bg-[#1e293b] p-1 rounded-xl"><button data-tab="leaderboard" class="tab-btn px-4 py-2 text-sm rounded-lg bg-blue-600 text-white">Žebříček</button><button data-tab="matches" class="tab-btn px-4 py-2 text-sm rounded-lg text-slate-300">Zápasy</button><button data-tab="tips" class="tab-btn px-4 py-2 text-sm rounded-lg text-slate-300">Všechny tipy</button></div></nav>
+<main class="max-w-3xl mx-auto px-4 mt-4 pb-24">
+  <div id="tab-leaderboard"><div id="leaderboardList" class="space-y-2"></div><button id="btnAddPlayer" class="mt-3 w-full bg-[#1e293b] rounded-xl py-3 text-sm">+ Přidat hráče</button></div>
+  <div id="tab-matches" class="hidden"><div class="flex justify-between mb-3"><h2 class="text-sm text-slate-300">Zápasy</h2><button id="btnAddMatch" class="text-xs px-3 py-1.5 rounded-lg bg-[#1e293b] border border-white/10">+ Přidat zápas</button></div><div id="matchesList" class="space-y-3"></div></div>
+  <div id="tab-tips" class="hidden"><div id="tipsWrap" class="bg-[#1e293b] rounded-2xl overflow-hidden"></div></div>
+</main>
 <script>
-function App(){
-return{
-tab:'zeb',
-players:[
-{id:1,name:'Ajakulca',team:'Česko',points:0,correct:0},
-{id:2,name:'Johny',team:'Španělsko',points:0,correct:0},
-{id:3,name:'Olča',team:'Brazílie',points:0,correct:0},
-],
-matches:[
-{id:1,date:'14.06. 00:00',home:'Brazílie',away:'Maroko',venue:'New York',status:'naplánováno',result:''},
-{id:2,date:'14.06. 03:00',home:'Haiti',away:'Skotsko',venue:'Boston',status:'naplánováno',result:''},
-{id:3,date:'15.06. 18:00',home:'Španělsko',away:'Kapverdy',venue:'Atlanta',status:'naplánováno',result:''},
-{id:4,date:'15.06. 21:00',home:'Belgie',away:'Egypt',venue:'Seattle',status:'naplánováno',result:''},
-{id:5,date:'20.06. 00:00',home:'Skotsko',away:'Maroko',venue:'Boston',status:'naplánováno',result:''},
-{id:6,date:'20.06. 03:00',home:'Brazílie',away:'Haiti',venue:'Filadelfie',status:'naplánováno',result:''},
-{id:7,date:'21.06. 18:00',home:'Španělsko',away:'Saúdská Arábie',venue:'Atlanta',status:'naplánováno',result:''},
-{id:8,date:'21.06. 21:00',home:'Belgie',away:'Írán',venue:'Los Angeles',status:'naplánováno',result:''},
-{id:9,date:'22.06. 03:00',home:'Nový Zéland',away:'Egypt',venue:'Vancouver',status:'naplánováno',result:''},
-{id:10,date:'25.06. 00:00',home:'Maroko',away:'Haiti',venue:'Atlanta',status:'naplánováno',result:''},
-{id:11,date:'25.06. 00:00',home:'Skotsko',away:'Brazílie',venue:'Miami',status:'naplánováno',result:''},
-],
-tips:{},
-init(){const s=localStorage.getItem('ms2026-tip');if(s){const d=JSON.parse(s);this.players=d.players;this.matches=d.matches;this.tips=d.tips}else{this.matches.forEach(m=>{this.tips[m.id]={};this.players.forEach(p=>this.tips[m.id][p.id]='')});}this.calc()},
-save(){localStorage.setItem('ms2026-tip',JSON.stringify({players:this.players,matches:this.matches,tips:this.tips}))},
-calc(){this.players.forEach(p=>{p.points=0;p.correct=0});this.matches.forEach(m=>{if(m.result){m.status='odehráno';this.players.forEach(p=>{const t=this.tips[m.id][p.id];if(t&&t===m.result){p.points++;p.correct++}})}else m.status='naplánováno'});this.save()},
-get playersSorted(){return[...this.players].sort((a,b)=>b.points-a.points)},
-get leader(){return this.playersSorted[0]||{name:'—',points:0}},
-get leaderPct(){const p=this.leader;return this.played?Math.round((p.correct/this.played)*100):0},
-get played(){return this.matches.filter(m=>m.result).length},
-get lead(){const s=this.playersSorted;return s.length>1?s[0].points-s[1].points:0},
-addPlayer(){const n=prompt('Jméno hráče?');if(!n)return;const t=prompt('Tým?','Česko');const id=Math.max(...this.players.map(p=>p.id))+1;this.players.push({id,name:n,team:t,points:0,correct:0});this.matches.forEach(m=>this.tips[m.id][id]='');this.save()}
-}}
-PetiteVue.createApp(App()).mount()
+(() => {
+  const KEY='tipovacka2026-full';
+  const $=s=>document.querySelector(s);
+  function defaultState(){
+    return {
+      players:[
+        {id:1,name:"Ajakulca",team:"Česko",points:0,hits:0,total:4},
+        {id:2,name:"Johny",team:"Španělsko",points:0,hits:0,total:4},
+        {id:3,name:"Olča",team:"Brazílie",points:0,hits:0,total:4},
+      ],
+      matches:[
+        {id:1,home:"Nizozemsko",away:"Švédsko",date:"2026-06-20",homeScore:5,awayScore:1,tips:{},played:true},
+        {id:2,home:"Německo",away:"Pobřeží slonoviny",date:"2026-06-20",homeScore:2,awayScore:1,tips:{},played:true},
+        {id:3,home:"Ekvádor",away:"Curaçao",date:"2026-06-21",homeScore:0,awayScore:0,tips:{},played:true},
+        {id:4,home:"Tunisko",away:"Japonsko",date:"2026-06-21",homeScore:0,awayScore:4,tips:{},played:true},
+        {id:5,home:"Brazílie",away:"Maroko",date:"2026-06-14",homeScore:null,awayScore:null,tips:{},played:false},
+        {id:6,home:"Haiti",away:"Skotsko",date:"2026-06-14",homeScore:null,awayScore:null,tips:{},played:false},
+        {id:7,home:"Španělsko",away:"Kapverdy",date:"2026-06-15",homeScore:null,awayScore:null,tips:{},played:false},
+        {id:8,home:"Belgie",away:"Egypt",date:"2026-06-15",homeScore:null,awayScore:null,tips:{},played:false},
+        {id:9,home:"Španělsko",away:"Saúdská Arábie",date:"2026-06-21",homeScore:null,awayScore:null,tips:{},played:false},
+        {id:10,home:"Belgie",away:"Írán",date:"2026-06-21",homeScore:null,awayScore:null,tips:{},played:false},
+      ],
+      playedCount:4,totalMatches:10
+    }
+  }
+  function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r)}catch{}return defaultState()}
+  function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+  function res(h,a){return h>a?'1':h<a?'2':'X'}
+  let state=load();
+  state.players.forEach(p=>state.matches.forEach(m=>m.tips[p.id]=m.tips[p.id]||''));
+  function renderAll(){$('#loadedTime').textContent=new Date().toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});$('#playedInfo').textContent=state.playedCount;$('#totalInfo').textContent=state.totalMatches;renderStats();renderLeaderboard();renderMatches();renderTips()}
+  function renderStats(){const s=[...state.players].sort((a,b)=>b.points-a.points);const l=s[0],sec=s[1];$('#statLeader').textContent=`${l.name} — ${l.points} b.`;$('#statSuccess').textContent=`${l.total?Math.round(l.hits/l.total*100):0}%`;$('#statPlayed').textContent=`${state.playedCount}/${state.totalMatches}`;$('#statLead').textContent=`+${sec?l.points-sec.points:0} b.`}
+  function renderLeaderboard(){const s=[...state.players].sort((a,b)=>b.points-a.points);$('#leaderboardList').innerHTML=s.map((p,i)=>`<div class="bg-[#1e293b] rounded-xl px-4 py-3 flex items-center gap-3"><div class="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center">${i+1}</div><div class="flex-1"><span class="font-medium">${p.name}</span><span class="text-slate-400 text-[13px] ml-2">👑 ${p.team}</span></div><div class="text-right"><div class="font-semibold">${p.points} b.</div><div class="text-[12px] text-slate-400">${p.hits}/${p.total}</div></div></div>`).join('')}
+  function renderMatches(){$('#matchesList').innerHTML=state.matches.map(m=>`<div class="bg-[#1e293b] rounded-2xl p-4"><div class="flex justify-between"><div><div class="font-medium">${m.home} – ${m.away}</div><div class="text-[12px] text-slate-400">${m.date}</div></div><span class="text-[11px] px-2 py-1 rounded-full ${m.played?'bg-emerald-500/10 text-emerald-300':'bg-slate-700'}">${m.played?'odehráno':'naplánováno'}</span></div><div class="mt-3 grid grid-cols-3 gap-2">${state.players.map(p=>`<div class="bg-[#0f172a] rounded px-3 py-2"><div class="text-[11px] text-slate-400">${p.name}</div><input data-mid="${m.id}" data-pid="${p.id}" value="${m.tips[p.id]||''}" placeholder="1/X/2" class="mt-1 w-full bg-transparent outline-none"></div>`).join('')}</div><div class="mt-3 flex gap-2"><input type="number" data-hs="${m.id}" value="${m.homeScore??''}" class="w-16 bg-[#0f172a] border border-white/10 rounded px-2 py-1 text-center" placeholder="0"><span>:</span><input type="number" data-as="${m.id}" value="${m.awayScore??''}" class="w-16 bg-[#0f172a] border border-white/10 rounded px-2 py-1 text-center" placeholder="0"><button data-save="${m.id}" class="ml-auto px-3 py-1.5 rounded bg-blue-600 text-[13px]">Uložit</button></div></div>`).join('');document.querySelectorAll('button[data-save]').forEach(b=>b.onclick=()=>{const id=+b.dataset.save;const m=state.matches.find(x=>x.id===id);const hs=+document.querySelector(`input[data-hs="${id}"]`).value;const as=+document.querySelector(`input[data-as="${id}"]`).value;document.querySelectorAll(`input[data-mid="${id}"]`).forEach(i=>m.tips[i.dataset.pid]=i.value.trim());if(!isNaN(hs)&&!isNaN(as)){if(!m.played){m.played=true;state.playedCount++;const a=res(hs,as);state.players.forEach(p=>{p.total++;const t=(m.tips[p.id]||'').toUpperCase();if(t===a||(t.includes(':')&&res(...t.split(':').map(Number))===a)){p.hits++;p.points++}})}m.homeScore=hs;m.awayScore=as;save();renderAll()}})}
+  function renderTips(){$('#tipsWrap').innerHTML=`<table class="w-full text-[13px]"><thead class="bg-[#0f172a] text-slate-400"><tr><th class="p-3 text-left">Zápas</th>${state.players.map(p=>`<th class="p-3 text-left">${p.name}</th>`).join('')}</tr></thead><tbody>${state.matches.map(m=>`<tr class="border-t border-white/5"><td class="p-3">${m.home} – ${m.away}<div class="text-[11px] text-slate-500">${m.played?m.homeScore+':'+m.awayScore:'—'}</div></td>${state.players.map(p=>`<td class="p-3">${m.tips[p.id]||'—'}</td>`).join('')}</tr>`).join('')}</tbody></table>`}
+  document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('bg-blue-600','text-white'));b.classList.add('bg-blue-600','text-white');['leaderboard','matches','tips'].forEach(t=>$('#tab-'+t).classList.toggle('hidden',b.dataset.tab!==t))});
+  $('#btnAddPlayer').onclick=()=>{const n=prompt('Jméno hráče:');if(!n)return;const t=prompt('Tým:')||'';const id=Date.now();state.players.push({id,name:n,team:t,points:0,hits:0,total:state.playedCount});state.matches.forEach(m=>m.tips[id]='');save();renderAll()};
+  $('#btnAddMatch').onclick=()=>{const h=prompt('Domácí:');if(!h)return;const a=prompt('Hosté:');if(!a)return;const d=prompt('Datum:')||'';state.matches.push({id:Date.now(),home:h,away:a,date:d,homeScore:null,awayScore:null,tips:{},played:false});state.totalMatches++;save();renderAll()};
+  $('#btnRefresh').onclick=()=>{state=load();renderAll()};
+  renderAll();
+})();
 </script>
 </body>
 </html>
