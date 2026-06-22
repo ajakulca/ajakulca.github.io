@@ -1,0 +1,479 @@
+<html lang="cs"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Tipovačka MS 2026</title>
+<style>
+:root{
+  --bg:#0b1220;
+  --card:#141c2f;
+  --card-hover:#18233a;
+  --border:#1e293b;
+  --border-light:#263246;
+  --text:#e5e7eb;
+  --muted:#94a3b8;
+  --blue:#2563eb;
+  --blue-dark:#1d4ed8;
+  --gold:#fbbf24;
+  --silver:#cbd5e1;
+  --bronze:#d97706;
+  --green:#22c55e;
+  --green-bg:#052e16;
+  --green-border:#14532d;
+  --red:#ef4444;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.app{max-width:560px;margin:0 auto;padding:20px 14px 100px}
+header{margin-bottom:10px}
+h1{font-size:28px;line-height:1.1;margin:0;display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.3px}
+h1 span{filter:saturate(1.1)}
+.subtitle{color:var(--muted);font-size:14px;margin:6px 0 0 38px}
+.meta{display:flex;align-items:center;justify-content:space-between;margin:20px 2px 18px;color:var(--muted);font-size:13px}
+.meta-left{display:flex;align-items:center;gap:8px}
+.dot{opacity:.5}
+.btn-refresh{background:#1a2438;border:1px solid var(--border-light);color:#d1d5db;padding:6px 12px;border-radius:999px;font-size:13px;display:flex;align-items:center;gap6px;cursor:pointer;transition:.15s}
+.btn-refresh:hover{background:#202c44}
+.btn-refresh svg{width:14px;height:14px;opacity:.8}
+
+.summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px 14px 12px;position:relative;overflow:hidden}
+.sum-card .label{font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:8px;font-weight:600}
+.sum-card .value{font-size:30px;font-weight:800;line-height:1;letter-spacing:-.5px}
+.sum-card .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.sum-card.leader .value{color:var(--gold)}
+
+@media(min-width:520px){.summary-grid{grid-template-columns:repeat(4,1fr)}}
+
+.tabs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;margin:0 -2px 14px;scrollbar-width:none;-ms-overflow-style:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;background:#141d31;border:1px solid var(--border);color:#cbd5e1;padding:9px 14px;border-radius:999px;font-size:14px;font-weight:500;cursor:pointer;white-space:nowrap;transition:.18s;display:flex;align-items:center;gap:6px}
+.tab-btn:hover{background:#1a243a}
+.tab-btn.active{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:650;box-shadow:0 4px 14px rgba(37,99,235,.25)}
+
+.tab-content{display:none;animation:fade .2s ease}
+.tab-content.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.section-title{font-size:20px;font-weight:800;margin:14px 2px 12px;display:flex;align-items:center;gap:8px;letter-spacing:-.2px}
+
+.player-list{display:flex;flex-direction:column;gap:10px}
+.player-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;transition:.15s}
+.player-card:active{transform:scale(.99)}
+.player-card.gold{background:linear-gradient(180deg,#1b253a 0%,#141c2f 100%);border-color:rgba(251,191,36,.55);box-shadow:0 0 0 1px rgba(251,191,36,.25),0 8px 24px rgba(251,191,36,.08),inset 0 1px 0 rgba(255,255,255,.03)}
+.rank{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.rank-num{width:34px;height:34px;border-radius:50%;background:#0a1120;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:700;color:#9aa4b2;font-size:14px}
+.player-main{flex:1;min-width:0}
+.player-name{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.crown{font-size:12px;background:#0a1120;border:1px solid #23314f;color:#cbd5e1;padding:3px 8px;border-radius:999px;display:inline-flex;align-items:center;gap:4px;font-weight:500}
+.player-sub{font-size:13px;color:var(--muted);margin-top:3px}
+.player-points{text-align:right;flex-shrink:0}
+.player-points .pts{font-size:24px;font-weight:800;line-height:1}
+.player-card.gold .pts{color:var(--gold)}
+.player-points .detail{font-size:12px;color:var(--muted);margin-top:3px}
+
+.match-list{display:flex;flex-direction:column;gap:8px}
+.match-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.match-left{min-width:0}
+.match-teams{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.match-teams .vs{color:var(--muted);font-weight:500;margin:0 6px}
+.match-date{font-size:12px;color:var(--muted);margin-top:3px}
+.badge{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);padding:5px 9px;border-radius:999px;flex-shrink:0}
+
+.tips-wrap{display:flex;flex-direction:column;gap:14px}
+.tip-player{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:12px}
+.tip-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.tip-name{font-weight:700;font-size:14px}
+.tip-score{font-size:12px;color:var(--muted)}
+.tip-grid{display:grid;grid-template-columns:repeat(18,1fr);gap:4px}
+@media(min-width:500px){.tip-grid{grid-template-columns:repeat(36,1fr)}}
+.tip-dot{width:100%;aspect-ratio:1;border-radius:5px;background:#0f172a;border:1px solid #1f2937;transition:.1s}
+.tip-dot.green{background:#0b2a1a;border-color:#14532d;box-shadow:inset 0 0 0 1px rgba(34,197,94,.3)}
+.tip-dot.red{background:#2a0f12;border-color:#431217;box-shadow:inset 0 0 0 1px rgba(239,68,68,.2)}
+.tip-dot:hover{transform:scale(1.1);z-index:2}
+.legend{display:flex;gap:14px;margin:4px 2px 12px;font-size:12px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.legend .g{background:#0b2a1a;border:1px solid #14532d}
+.legend .r{background:#2a0f12;border:1px solid #431217}
+
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center}
+.stat-val{font-size:28px;font-weight:800;line-height:1}
+.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-top:6px;font-weight:600}
+
+.winners{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.winner-card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+.winner-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.winner-flag{font-size:30px;line-height:1}
+.winner-country{font-size:18px;font-weight:800}
+.winner-count{margin-left:auto;background:#0a1120;border:1px solid var(--border-light);padding:5px 10px;border-radius:999px;font-size:12px;color:var(--muted);font-weight:600}
+.winner-players{display:flex;flex-wrap:wrap;gap:6px}
+.winner-players span{background:#0a1120;border:1px solid #1f2b42;padding:5px 10px;border-radius:999px;font-size:13px;color:#d1d5db}
+.winner-card.top{border-color:rgba(251,191,36,.4);box-shadow:0 0 0 1px rgba(251,191,36,.15)}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1><span>🏆</span> Tipovačka MS 2026</h1>
+    <p class="subtitle">Žebříček a statistiky naší tipovačky</p>
+  </header>
+
+  <div class="meta">
+    <div class="meta-left">
+      <span>Načteno: <b id="loaded" style="color:#d1d5db;font-weight:600">14:21</b></span>
+      <span class="dot">·</span>
+      <span>odehráno <b style="color:#d1d5db">36/72</b></span>
+    </div>
+    <button class="btn-refresh" id="refresh">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7l3-2.3M3 22v-6h6M21 12a9 9 0 0 1-15 6.7l-3 2.3"></path></svg>
+      obnovit
+    </button>
+  </div>
+
+  <div class="summary-grid">
+    <div class="sum-card leader">
+      <div class="label">🥇 VEDOUCÍ</div>
+      <div class="value">Štěpán</div>
+      <div class="sub">23 bodů</div>
+    </div>
+    <div class="sum-card">
+      <div class="label">ÚSPĚŠNOST VEDOUCÍHO</div>
+      <div class="value">64 %</div>
+      <div class="sub">23/36 trefených</div>
+    </div>
+    <div class="sum-card">
+      <div class="label">ODEHRÁNO</div>
+      <div class="value">36/72</div>
+      <div class="sub">zápasů</div>
+    </div>
+    <div class="sum-card">
+      <div class="label">NÁSKOK V ČELE</div>
+      <div class="value">+2</div>
+      <div class="sub">bodů</div>
+    </div>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="zebricek">🥇 Žebříček</button>
+    <button class="tab-btn" data-tab="zapasy">⚽ Zápasy</button>
+    <button class="tab-btn" data-tab="tipy">📋 Všechny tipy</button>
+    <button class="tab-btn" data-tab="statistiky">📊 Statistiky</button>
+    <button class="tab-btn" data-tab="vitex">👑 Vítěz</button>
+  </nav>
+
+  <main>
+    <!-- ŽEBŘÍČEK -->
+    <section id="zebricek" class="tab-content active">
+      <h2 class="section-title">🥇 Pořadí</h2>
+      <div class="player-list">
+        <div class="player-card gold">
+          <div class="rank">🥇</div>
+          <div class="player-main">
+            <div class="player-name">Štěpán <span class="crown">👑 Španělsko</span></div>
+            <div class="player-sub">23/36 · 64 %</div>
+          </div>
+          <div class="player-points">
+            <div class="pts">23</div>
+            <div class="detail">bodů</div>
+          </div>
+        </div>
+
+        <div class="player-card">
+          <div class="rank">🥈</div>
+          <div class="player-main">
+            <div class="player-name">Andy <span class="crown">👑 Francie</span></div>
+            <div class="player-sub">21/36 · 58 %</div>
+          </div>
+          <div class="player-points"><div class="pts">21</div><div class="detail">bodů</div></div>
+        </div>
+
+        <div class="player-card">
+          <div class="rank">🥉</div>
+          <div class="player-main">
+            <div class="player-name">Brácha <span class="crown">👑 Argentina</span></div>
+            <div class="player-sub">21/36 · 58 %</div>
+          </div>
+          <div class="player-points"><div class="pts">21</div><div class="detail">bodů</div></div>
+        </div>
+
+        <div class="player-card">
+          <div class="rank">🥉</div>
+          <div class="player-main">
+            <div class="player-name">Hejk <span class="crown">👑 Německo</span></div>
+            <div class="player-sub">21/36 · 58 %</div>
+          </div>
+          <div class="player-points"><div class="pts">21</div><div class="detail">bodů</div></div>
+        </div>
+
+        <div class="player-card">
+          <div class="rank-num">5</div>
+          <div class="player-main">
+            <div class="player-name">Míňa <span class="crown">👑 Španělsko</span></div>
+            <div class="player-sub">20/36 · 56 %</div>
+          </div>
+          <div class="player-points"><div class="pts">20</div><div class="detail">bodů</div></div>
+        </div>
+
+        <div class="player-card"><div class="rank-num">6</div><div class="player-main"><div class="player-name">Kulča</div><div class="player-sub">19/36 · 53 %</div></div><div class="player-points"><div class="pts">19</div></div></div>
+        <div class="player-card"><div class="rank-num">7</div><div class="player-main"><div class="player-name">Vosa</div><div class="player-sub">19/36 · 53 %</div></div><div class="player-points"><div class="pts">19</div></div></div>
+        <div class="player-card"><div class="rank-num">8</div><div class="player-main"><div class="player-name">Příba</div><div class="player-sub">19/36 · 53 %</div></div><div class="player-points"><div class="pts">19</div></div></div>
+        <div class="player-card"><div class="rank-num">9</div><div class="player-main"><div class="player-name">Janča</div><div class="player-sub">17/36 · 47 %</div></div><div class="player-points"><div class="pts">17</div></div></div>
+        <div class="player-card"><div class="rank-num">10</div><div class="player-main"><div class="player-name">Bochy</div><div class="player-sub">17/36 · 47 %</div></div><div class="player-points"><div class="pts">17</div></div></div>
+        <div class="player-card"><div class="rank-num">11</div><div class="player-main"><div class="player-name">Árči</div><div class="player-sub">16/36 · 44 %</div></div><div class="player-points"><div class="pts">16</div></div></div>
+        <div class="player-card"><div class="rank-num">12</div><div class="player-main"><div class="player-name">Vráťa</div><div class="player-sub">13/36 · 36 %</div></div><div class="player-points"><div class="pts">13</div></div></div>
+        <div class="player-card"><div class="rank-num">13</div><div class="player-main"><div class="player-name">Šimon</div><div class="player-sub">13/36 · 36 %</div></div><div class="player-points"><div class="pts">13</div></div></div>
+      </div>
+    </section>
+
+    <!-- ZÁPASY -->
+    <section id="zapasy" class="tab-content">
+      <h2 class="section-title">⚽ Odehrané zápasy</h2>
+      <div class="match-list">
+        <div class="match-card"><div class="match-left"><div class="match-teams">MEXIKO <span class="vs">–</span> JAR</div><div class="match-date">1 · 11.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">JIŽNÍ KOREA <span class="vs">–</span> ČESKO</div><div class="match-date">2 · 12.6 4:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">KANADA <span class="vs">–</span> BOSNA A HERCEGOVINA</div><div class="match-date">3 · 12.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">USA <span class="vs">–</span> WALES</div><div class="match-date">4 · 13.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ARGENTINA <span class="vs">–</span> ISLAND</div><div class="match-date">5 · 13.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">FRANCIE <span class="vs">–</span> SENEGAL</div><div class="match-date">6 · 13.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">NĚMECKO <span class="vs">–</span> KOSTARIKA</div><div class="match-date">7 · 13.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ŠPANĚLSKO <span class="vs">–</span> NOVÝ ZÉLAND</div><div class="match-date">8 · 14.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">BRAZÍLIE <span class="vs">–</span> SRBSKO</div><div class="match-date">9 · 14.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">PORTUGALSKO <span class="vs">–</span> NIGÉRIE</div><div class="match-date">10 · 14.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ANGLIE <span class="vs">–</span> IRÁN</div><div class="match-date">11 · 14.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">NIZOZEMSKO <span class="vs">–</span> RAKOUSKO</div><div class="match-date">12 · 15.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">BELGIE <span class="vs">–</span> MAROKO</div><div class="match-date">13 · 15.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">CHORVATSKO <span class="vs">–</span> KAMERUN</div><div class="match-date">14 · 15.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">DÁNSKO <span class="vs">–</span> SKOTSKO</div><div class="match-date">15 · 15.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ŠVÝCARSKO <span class="vs">–</span> USA</div><div class="match-date">16 · 16.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">URUGUAY <span class="vs">–</span> GHANA</div><div class="match-date">17 · 16.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ITÁLIE <span class="vs">–</span> ALŽÍRSKO</div><div class="match-date">18 · 16.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">MEXIKO <span class="vs">–</span> JIŽNÍ KOREA</div><div class="match-date">19 · 16.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ČESKO <span class="vs">–</span> JAR</div><div class="match-date">20 · 17.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">KANADA <span class="vs">–</span> EKVÁDOR</div><div class="match-date">21 · 17.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">BOSNA A HERCEGOVINA <span class="vs">–</span> PANAMA</div><div class="match-date">22 · 17.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">FRANCIE <span class="vs">–</span> NĚMECKO</div><div class="match-date">23 · 17.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ARGENTINA <span class="vs">–</span> BRAZÍLIE</div><div class="match-date">24 · 18.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ŠPANĚLSKO <span class="vs">–</span> PORTUGALSKO</div><div class="match-date">25 · 18.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ANGLIE <span class="vs">–</span> USA</div><div class="match-date">26 · 18.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">NIZOZEMSKO <span class="vs">–</span> BELGIE</div><div class="match-date">27 · 18.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">CHORVATSKO <span class="vs">–</span> DÁNSKO</div><div class="match-date">28 · 19.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ŠVÝCARSKO <span class="vs">–</span> ITÁLIE</div><div class="match-date">29 · 19.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">URUGUAY <span class="vs">–</span> MEXIKO</div><div class="match-date">30 · 19.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">JIŽNÍ KOREA <span class="vs">–</span> KANADA</div><div class="match-date">31 · 19.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">ČESKO <span class="vs">–</span> BOSNA A HERCEGOVINA</div><div class="match-date">32 · 20.6 0:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">JAR <span class="vs">–</span> EKVÁDOR</div><div class="match-date">33 · 20.6 3:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">SENEGAL <span class="vs">–</span> KOSTARIKA</div><div class="match-date">34 · 20.6 18:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">WALES <span class="vs">–</span> ISLAND</div><div class="match-date">35 · 20.6 21:00</div></div><div class="badge">ODEHRÁNO</div></div>
+        <div class="match-card"><div class="match-left"><div class="match-teams">TUNISKO <span class="vs">–</span> JAPONSKO</div><div class="match-date">36 · 21.6 6:00</div></div><div class="badge">ODEHRÁNO</div></div>
+      </div>
+    </section>
+
+    <!-- VŠECHNY TIPY -->
+    <section id="tipy" class="tab-content">
+      <h2 class="section-title">📋 Všechny tipy</h2>
+      <div class="legend">
+        <span><i class="g"></i> trefa</span>
+        <span><i class="r"></i> netrefa</span>
+        <span>36 zápasů · zelená = bod</span>
+      </div>
+      <div class="tips-wrap" id="tipsWrap"><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Štěpán</div>
+      <div class="tip-score">23/36 · 64%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Andy</div>
+      <div class="tip-score">21/36 · 58%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Brácha</div>
+      <div class="tip-score">21/36 · 58%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Hejk</div>
+      <div class="tip-score">21/36 · 58%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Míňa</div>
+      <div class="tip-score">20/36 · 56%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Kulča</div>
+      <div class="tip-score">19/36 · 53%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Vosa</div>
+      <div class="tip-score">19/36 · 53%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Příba</div>
+      <div class="tip-score">19/36 · 53%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Janča</div>
+      <div class="tip-score">17/36 · 47%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Bochy</div>
+      <div class="tip-score">17/36 · 47%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Árči</div>
+      <div class="tip-score">16/36 · 44%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Vráťa</div>
+      <div class="tip-score">13/36 · 36%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div><div class="tip-player">
+    <div class="tip-head">
+      <div class="tip-name">Šimon</div>
+      <div class="tip-score">13/36 · 36%</div>
+    </div>
+    <div class="tip-grid"><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot green"></div><div class="tip-dot green"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div><div class="tip-dot red"></div></div>
+  </div></div>
+    </section>
+
+    <!-- STATISTIKY -->
+    <section id="statistiky" class="tab-content">
+      <h2 class="section-title">📊 Statistiky</h2>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-val">51%</div><div class="stat-lbl">Průměrná úspěšnost</div></div>
+        <div class="stat-card"><div class="stat-val">18.4</div><div class="stat-lbl">Průměr bodů</div></div>
+        <div class="stat-card"><div class="stat-val">23</div><div class="stat-lbl">Nejvíc bodů</div></div>
+        <div class="stat-card"><div class="stat-val">13</div><div class="stat-lbl">Nejméně bodů</div></div>
+      </div>
+      <div style="margin-top:14px" class="player-card">
+        <div class="rank">🔥</div>
+        <div class="player-main">
+          <div class="player-name">Nejvyrovnanější trojice</div>
+          <div class="player-sub">Andy, Brácha, Hejk — všichni 21 bodů</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VÍTĚZ -->
+    <section id="vitex" class="tab-content">
+      <h2 class="section-title">👑 Tip na vítěze MS</h2>
+      <div class="winners">
+        <div class="winner-card top">
+          <div class="winner-top">
+            <div class="winner-flag">🇪🇸</div>
+            <div class="winner-country">Španělsko</div>
+            <div class="winner-count">7× tipováno</div>
+          </div>
+          <div class="winner-players">
+            <span>Štěpán</span><span>Míňa</span><span>Kulča</span><span>Vosa</span><span>Příba</span><span>Janča</span><span>Bochy</span>
+          </div>
+        </div>
+        <div class="winner-card">
+          <div class="winner-top">
+            <div class="winner-flag">🇫🇷</div>
+            <div class="winner-country">Francie</div>
+            <div class="winner-count">2×</div>
+          </div>
+          <div class="winner-players"><span>Andy</span><span>Árči</span></div>
+        </div>
+        <div class="winner-card">
+          <div class="winner-top">
+            <div class="winner-flag">🇦🇷</div>
+            <div class="winner-country">Argentina</div>
+            <div class="winner-count">2×</div>
+          </div>
+          <div class="winner-players"><span>Brácha</span><span>Šimon</span></div>
+        </div>
+        <div class="winner-card">
+          <div class="winner-top">
+            <div class="winner-flag">🇩🇪</div>
+            <div class="winner-country">Německo</div>
+            <div class="winner-count">2×</div>
+          </div>
+          <div class="winner-players"><span>Hejk</span><span>Vráťa</span></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+const tabs = document.querySelectorAll('.tab-btn');
+tabs.forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    tabs.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+});
+
+document.getElementById('refresh').addEventListener('click',()=>{
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('loaded').textContent = `${h}:${m}`;
+  const btn = document.getElementById('refresh');
+  btn.style.transform='rotate(360deg)';
+  setTimeout(()=>btn.style.transform='',400);
+});
+
+// generate tips
+const players = [
+  {name:'Štěpán', pts:23, cor:23},
+  {name:'Andy', pts:21, cor:21},
+  {name:'Brácha', pts:21, cor:21},
+  {name:'Hejk', pts:21, cor:21},
+  {name:'Míňa', pts:20, cor:20},
+  {name:'Kulča', pts:19, cor:19},
+  {name:'Vosa', pts:19, cor:19},
+  {name:'Příba', pts:19, cor:19},
+  {name:'Janča', pts:17, cor:17},
+  {name:'Bochy', pts:17, cor:17},
+  {name:'Árči', pts:16, cor:16},
+  {name:'Vráťa', pts:13, cor:13},
+  {name:'Šimon', pts:13, cor:13},
+];
+const wrap = document.getElementById('tipsWrap');
+players.forEach(p=>{
+  const div = document.createElement('div');
+  div.className='tip-player';
+  const arr = Array.from({length:36},(_,i)=> i < p.cor ? 'green' : 'red');
+  // shuffle a bit for realism
+  for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()* (i+1)); if(Math.random()<0.3){ [arr[i],arr[j]]=[arr[j],arr[i]] } }
+  div.innerHTML = `
+    <div class="tip-head">
+      <div class="tip-name">${p.name}</div>
+      <div class="tip-score">${p.cor}/36 · ${Math.round(p.cor/36*100)}%</div>
+    </div>
+    <div class="tip-grid">${arr.map(c=>`<div class="tip-dot ${c}"></div>`).join('')}</div>
+  `;
+  wrap.appendChild(div);
+});
+</script>
+<script>(function(){document.addEventListener("click",function(e){var a=e.target.closest("[data-product-id]");if(!a)return;e.preventDefault();var pid=a.getAttribute("data-product-id");if(pid)parent.postMessage({type:"ecto-artifact-link-click",productId:pid},"*")})})();</script>
+
+</body></html>
